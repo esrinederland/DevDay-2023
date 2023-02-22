@@ -1,0 +1,100 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>
+      Request data from a remote server | Sample | ArcGIS Maps SDK for
+      JavaScript 4.25
+    </title>
+
+    <style>
+      html,
+      body,
+
+      #container {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      .container {
+        padding: 1em;
+      }
+
+      #btnQuery {
+        overflow: auto;
+        text-align: center;
+        cursor: pointer;
+        font-size: 1em;
+      }
+
+      #tokenInput {
+        width: 75%;
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.25/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.25/"></script>
+  </head>
+
+  <body>
+    <div class="container esri-widget">
+      <div>
+        <h2>Using esri/request</h2>
+        <button id="btnQuery">Get Groups</button>
+        <input
+          id="tokenInput"
+          type="text"
+          value=""
+        />
+      </div>
+      <pre id="resultsDiv"></pre>
+    </div>
+
+    <script>
+      require(["esri/request"], function (esriRequest) {
+        const resultsDiv = document.getElementById("resultsDiv");
+        const tokenInput = document.getElementById("tokenInput");
+
+
+
+        // Make the request on a button click
+        btnQuery.addEventListener("click", function () {
+          const url = "https://mjagtportal.maps.arcgis.com/sharing/rest/community/groups";
+                  // Define the 'options' for the request
+        const options = {
+          query: {
+            f: "json",
+            q: 'owner:mjagtPortal AND tags:ShowMeTheGroupies',
+            num: 100,
+            token: tokenInput.value
+          },
+          method: "post",
+          responseType: "json"
+        };
+        
+          resultsDiv.innerHTML = "<div style='display:table;'><div style='display:table-row;'>";
+          esriRequest(url, options).then(function (response) {
+            console.log("response", response);
+            for (const group of response.data.results){
+            resultsDiv.innerHTML += "<div style='display:table-column;float:left;width:200px;height:200px'>" + 
+                                    "<img src='https://mjagtportal.maps.arcgis.com/sharing/rest/community/groups/" + group.id + "/info/" + group.thumbnail + "?token=" + tokenInput.value + "'></img>" + 
+                                    "<h2>" + group.title + "</h2>" + group.description + "</div>"
+          }
+          resultsDiv.innerHTML += "</div></div>";
+          }).catch(function(response) {
+            console.log("Big error: ", response);
+            resultsDiv.innerHTML = response.message;
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
