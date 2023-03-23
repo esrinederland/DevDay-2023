@@ -5,14 +5,14 @@ gis = arcgis.GIS(PortalUrl, profile=ProfileName)
 print("Successfully logged into '{}' via the '{}' user".format(gis.properties.portalHostname,gis.properties.user.username))
 
 # GET THE USER THAT WAS PREVIOUSLY CREATED
-newUser = gis.users.get("BerlinBear")
+newUser = gis.users.get("DevDayUser")
 
 # SET A NEW LICENSE TYPE
 print("Update license type:")
 newUser.update_license_type("Creator")
 
 # SET A NEW ROLE NAME
-newRoleName = "DevSummit DemoRole"
+newRoleName = "DevDay DemoRole"
 print("Searching for role id")
 for role in gis.users.roles.all():
     if role.name==newRoleName:
@@ -28,7 +28,7 @@ license = gis.admin.license.get('ArcGIS Pro')
 print(license.all()) # returns a list of all usernames and their entitlements for this license
 
 print("Assigning a pro license to a user")
-licenseAssigned = license.assign(username='BerlinBear', entitlements='desktopBasicN')
+licenseAssigned = license.assign(username='DevDayUser', entitlements='desktopBasicN')
 if licenseAssigned:
     print(f"The pro license was successfully added to the user.")
 else:

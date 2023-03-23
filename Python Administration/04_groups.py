@@ -7,8 +7,8 @@ print("Successfully logged into '{}' via the '{}' user".format(gis.properties.po
 
 # CREATE A NEW GROUP
 GroupTitle = "Doomed To Stay"
-GroupDescription = "This is a group created for the EU DevSummit 2022. The word is: BMW!!"
-GroupTags = "DevSummit2022, Demo, NoLeaving"
+GroupDescription = "This is a group created for the 2023 DevDay. The word is: BMW!!"
+GroupTags = "DevDay2023, Demo, NoLeaving"
 
 foundGroups = gis.groups.search(f'title:{GroupTitle}')
 if len(foundGroups) > 0:
@@ -18,7 +18,7 @@ else:
     print(f"Group '{newGroup.title}' created!")
 
 # ADD USERS
-groupUsers = ['mark_dev', 'maarten_dev','BerlinBear']
+groupUsers = ['mark_dev', 'maarten_dev','DevDayUser']
 print("adding users to group")
 usersAdded = newGroup.add_users(groupUsers)
 if len(usersAdded['notAdded']) > 0:
