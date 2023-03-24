@@ -3,7 +3,8 @@ from Settings import PortalUrl,ProfileName
 import datetime
 
 print("Getting GIS")
-gis = arcgis.GIS(PortalUrl, profile=ProfileName,verify_cert=False)
+#gis = arcgis.GIS(PortalUrl, profile=ProfileName,verify_cert=False)
+gis = arcgis.GIS("https://esribx0814.esrinl.com/portal", profile="local_maarten_admin",verify_cert=False)
 print("Successfully logged into '{}' via the '{}' user".format(gis.properties.portalHostname,gis.properties.user.username)) 
 
 #Get GIS Server

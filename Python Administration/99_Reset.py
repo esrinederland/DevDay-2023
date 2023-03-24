@@ -6,18 +6,15 @@ print("Successfully logged into '{}' via the '{}' user".format(gis.properties.po
 
 #Reset Look and Feel
 # Change home page title
-homePageJson = gis._con.get(f"https://{gis.properties.portalHostname}/sharing/rest/portals/self/resources/home.page.json?f=json")
-
 newTitle = "EsriNL DevTeam ArcGIS Enterprise"
-homePageJson["header"]["title"] = newTitle
 
-updateHomePageUrl = f"https://{gis.properties.portalHostname}/sharing/rest/portals/self/addResource"
-updateHomePageParams = {}
-updateHomePageParams["key"] = "home.page.json"
-updateHomePageParams["text"] = homePageJson
-updateHomePageParams["f"] = "json"
+# CHANGE HOMEPAGE TITLE
+gis.admin.ux.homepage_settings.set_title(newTitle)
+print(f"Home page title updated to {newTitle}")
 
-updateHomePageJson = gis._con.post(updateHomePageUrl, params=updateHomePageParams)
+# CHANGE HOMEPAGE BACKGROUND
+gis.admin.ux.homepage_settings.set_background(r"D:\Esri Nederland\DevTeam - Documents\Media\ZwolleDeveloperCenter.png")
+print(f"Home page background updated")
 
 # Change portal title
 gis.admin.ux.name = f"DevTeam Portal"

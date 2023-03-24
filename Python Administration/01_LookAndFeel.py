@@ -7,21 +7,17 @@ print("Getting GIS")
 gis = arcgis.GIS(PortalUrl, profile=ProfileName)
 print("Successfully logged into '{}' via the '{}' user".format(gis.properties.portalHostname,gis.properties.user.username)) 
 
+ux = gis.admin.ux
+
 # CHANGE HOMEPAGE TITLE
-homePageJson = gis._con.get(f"https://{gis.properties.portalHostname}/sharing/rest/portals/self/resources/home.page.json?f=json")
-print(homePageJson)
+newTitle = "DevTeam Server [Esri GISTech 2023]"
+ux.homepage_settings.set_title(newTitle)
+print(f"Home page title updated to {newTitle}")
 
-newTitle = "Dev Summit Berlin 2022"
-homePageJson["header"]["title"] = newTitle
+# CHANGE HOMEPAGE BACKGROUND
+ux.homepage_settings.set_background(r"D:\Data\background.jpg")
+print(f"Home page background updated")
 
-updateHomePageUrl = f"https://{gis.properties.portalHostname}/sharing/rest/portals/self/addResource"
-updateHomePageParams = {}
-updateHomePageParams["key"] = "home.page.json"
-updateHomePageParams["text"] = homePageJson
-updateHomePageParams["f"] = "json"
-
-updateHomePageJson = gis._con.post(updateHomePageUrl, params=updateHomePageParams)
-print(f"Home page updated: {updateHomePageJson}")
 
 # CHANGE PORTAL TITLE
 # sign in to dashboard using incognito: https://devteam.esri.nl/portal/apps/dashboards/home
