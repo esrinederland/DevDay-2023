@@ -17,7 +17,7 @@ title = os.path.splitext(fileName)[0]
 itemProperties={'type':fileType,
                 'title':title,
                 'description':'CSV file with earthquake information',
-                'tags':'python, csv, earthquakes, DevSummit2022'}
+                'tags':'python, csv, earthquakes, DevDay2023'}
 
 addedItem = gis.content.add(item_properties=itemProperties, data=filePath)
 print(f"The item '{fileName}' was added to your portal with itemID: '{addedItem.itemid}'")
@@ -29,7 +29,7 @@ print(f"Icon Update result: {updatedItemSucceeded}")
 
 
 # SHARE WITH GROUP
-groupsToShareWith = gis.groups.search(query='tags:DevSummit2022')
+groupsToShareWith = gis.groups.search(query='tags:DevDay2023')
 
 share = addedItem.share(groups=groupsToShareWith)
 if share['results'][0]['success']:
@@ -48,9 +48,9 @@ wm.add_layer(layer)  # add some layers
 
 
 # SAVE THE WEBMAP
-webmap_item_properties = {'title':'DevSummit Created Webmap',
+webmap_item_properties = {'title':'DevDay Created Webmap',
              'snippet':'Map created using Python API',
-             'tags':['automation', 'python', "DevSummit2022"],
+             'tags':['automation', 'python', "DevDay2023"],
              'extent': {'xmin': -17, 'ymin': 42, 'xmax': 39, 'ymax': 59, 'spatialReference': {'wkid': 4326}}}
 
 print("Saving the webmap")

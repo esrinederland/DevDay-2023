@@ -5,6 +5,7 @@ gis = arcgis.GIS(PortalUrl, profile=ProfileName,verify_cert=False)
 print("Successfully logged into '{}' via the '{}' user".format(gis.properties.portalHostname,gis.properties.user.username)) 
 
 #Reset Look and Feel
+<<<<<<< HEAD
 # Change home page title
 newTitle = "EsriNL DevTeam ArcGIS Enterprise"
 
@@ -15,13 +16,34 @@ print(f"Home page title updated to {newTitle}")
 # CHANGE HOMEPAGE BACKGROUND
 gis.admin.ux.homepage_settings.set_background(r"D:\Esri Nederland\DevTeam - Documents\Media\ZwolleDeveloperCenter.png")
 print(f"Home page background updated")
+=======
+# # Change home page title
+# homePageJson = gis._con.get(f"https://{gis.properties.portalHostname}/sharing/rest/portals/self/resources/home.page.json?f=json")
+
+# newTitle = "EsriNL DevTeam ArcGIS Enterprise"
+# homePageJson["header"]["title"] = newTitle
+
+# updateHomePageUrl = f"https://{gis.properties.portalHostname}/sharing/rest/portals/self/addResource"
+# updateHomePageParams = {}
+# updateHomePageParams["key"] = "home.page.json"
+# updateHomePageParams["text"] = homePageJson
+# updateHomePageParams["f"] = "json"
+
+# updateHomePageJson = gis._con.post(updateHomePageUrl, params=updateHomePageParams)
+
+# filename = r'D:\Data\background_default.png'
+# if filename.exists():
+#     print(gis.admin.ux.set_background(background_file=filename))
+# else:
+#     print("file not exists!")
+>>>>>>> 139e4bbfb5f758299efc929ee12ae9d33e329399
 
 # Change portal title
-gis.admin.ux.name = f"DevTeam Portal"
+gis.admin.ux.name = f"EsriNL DevTeam ArcGIS Enterprise"
 
 #Remove created users
 print("finding demo user")
-DemoUser = gis.users.get("BerlinBear")
+DemoUser = gis.users.get("DevDayUser")
 
 if not DemoUser is None:
     print(f"Deleting user: {DemoUser.username}")
@@ -30,7 +52,7 @@ if not DemoUser is None:
 
 #Remove Created Group
 print("Searching for groups")
-foundGroups = gis.groups.search(query='tags:"DevSummit2022"')
+foundGroups = gis.groups.search(query='tags:"DevDay2023"')
 print(f"found: {len(foundGroups)}")
 for demogroup in foundGroups:
     print(f"Deleting group: {demogroup.title}")
@@ -40,7 +62,7 @@ for demogroup in foundGroups:
 
 #remove created items:
 print("Searching for items")
-itemsToRemove = gis.content.search(query='tags:"DevSummit2022"',max_items=1000)
+itemsToRemove = gis.content.search(query='tags:"DevDay2023"',max_items=1000)
 print(f"found: {len(itemsToRemove)}")
 for item in itemsToRemove:
     print(f"Start deleting item: {item.title} , {item.type} ({item.id})")

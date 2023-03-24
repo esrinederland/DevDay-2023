@@ -27,9 +27,9 @@ for unique in uniqueValues:
     extent = layer.query(where=sql_expression,return_extent_only = True, out_sr=4326)
 
     # SAVE THE WEBMAP
-    webmap_item_properties = {'title':f'DevSummits Created Webmap for {unique}',
+    webmap_item_properties = {'title':f'DevDay Created Webmap for {unique}',
                 'snippet':'Map created using Python API',
-                'tags':['automation', 'python', "DevSummit2022"],
+                'tags':['automation', 'python', "DevDay2023"],
                 'extent': extent['extent']}
 
     print("Saving the webmap")
