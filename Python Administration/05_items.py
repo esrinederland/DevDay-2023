@@ -43,7 +43,7 @@ wm = arcgis.mapping.WebMap()  # new web map
 
 wm.basemap = "streets-night-vector"
 
-layer = gis.content.get("cb563bfcd2ef4a009126872495f2b2d3").layers[0]
+layer = gis.content.get("96cbbfd990844b78a3150313ea9971d6").layers[0]
 wm.add_layer(layer)  # add some layers
 
 

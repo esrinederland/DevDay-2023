@@ -5,16 +5,19 @@ gis = arcgis.GIS(PortalUrl, profile=ProfileName)
 print("Successfully logged into '{}' via the '{}' user".format(gis.properties.portalHostname,gis.properties.user.username))
 
 #get featurelayer
-layer = gis.content.get("cb563bfcd2ef4a009126872495f2b2d3").layers[0]
+layer = gis.content.get("96cbbfd990844b78a3150313ea9971d6").layers[0]
 
 #get unique values
-uniqueValues = layer.get_unique_values("gen_2") #gen_2 == "BUNDESLAND"
+uniqueValues = layer.get_unique_values("Gemeente")
 
 print(f"Found: {len(uniqueValues)} unique values")
+uniqueValues.sort(reverse=True)
+counter = 0
 for unique in uniqueValues:
-    print(f"Creating webmap for {unique}")
+    counter += 1
+    print(f"Creating webmap for {unique} ({counter}/{len(uniqueValues)}))")
 
-    sql_expression = f"gen_2 = '{unique}'"
+    sql_expression = f"Gemeente = '{unique}'"
 
     wm = arcgis.mapping.WebMap()  # new web map
 
