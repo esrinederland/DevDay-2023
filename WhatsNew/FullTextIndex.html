@@ -1,0 +1,109 @@
+<!-- 
+
+To run this demo, you need to replace 'YOUR_API_KEY' with an API key from the ArcGIS Developers dashboard.
+
+Sign up for a free account and get an API key.
+
+https://developers.arcgis.com/documentation/mapping-apis-and-services/get-started/
+
+ -->
+ <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta
+        name="viewport"
+        content="initial-scale=1,maximum-scale=1,user-scalable=no"
+      />
+      <title>
+        Full Text Index | ArcGIS Maps SDK for JavaScript 4.26
+      </title>
+  
+      <style>
+        html,
+        body,
+        #viewDiv {
+          padding: 0;
+          margin: 0;
+          height: 100%;
+          width: 100%;
+        }
+      </style>
+  
+      <link
+        rel="stylesheet"
+        href="https://js.arcgis.com/4.26/esri/themes/light/main.css"
+      />
+      <script src="https://js.arcgis.com/4.26/"></script>
+  
+      <script>
+        require([
+          "esri/Map",
+          "esri/views/MapView",
+          "esri/layers/FeatureLayer",
+          "esri/widgets/Search"
+        ], (Map, MapView, FeatureLayer, Search) => {
+          const wegenWithFullTextIndex = new FeatureLayer({
+            url: "https://services9.arcgis.com/kfCU77AsgNn9o1Ff/arcgis/rest/services/NWB_Wegvakken/FeatureServer/0",
+            popupTemplate: {
+              // autocasts as new PopupTemplate()
+              title: "{STT_NAAM}",
+              overwriteActions: true
+            }
+          });
+          
+          const wegenWithoutFullTextIndex = new FeatureLayer({
+            url: "https://services9.arcgis.com/kfCU77AsgNn9o1Ff/arcgis/rest/services/NWB_Wegvakken_No_Full_Text_Index/FeatureServer/0",
+            popupTemplate: {
+              // autocasts as new PopupTemplate()
+              title: "{STT_NAAM}",
+              overwriteActions: true
+            }
+          });
+  
+          const map = new Map({
+            basemap: "dark-gray-vector",
+            layers: [wegenWithFullTextIndex]
+          });
+  
+          const view = new MapView({
+            container: "viewDiv",
+            map: map,
+            center: [5.932024, 52.960886],//[6.1,52.5], // lon, lat
+            zoom: 14
+          });
+          
+          const searchWidget = new Search({
+            view: view,
+            allPlaceholder: "District or Senator",
+            includeDefaultSources: false,
+            sources: [
+              {
+                layer: wegenWithFullTextIndex,
+                // layer: wegenWithoutFullTextIndex,
+                searchFields: ["STT_NAAM"],
+                displayField: "STT_NAAM",
+                exactMatch: false,
+                outFields: ["STT_NAAM"],
+                name: "Wegen",
+                placeholder: "voorbeeld: Kerkstraat",
+                maxResults: 12,
+                maxSuggestions: 12,
+                suggestionsEnabled: true,
+                minSuggestCharacters: 0
+              }
+            ]
+          });
+  
+          // Add the search widget to the top left corner of the view
+          view.ui.add(searchWidget, {
+            position: "top-right"
+          });
+        });
+      </script>
+    </head>
+  
+    <body>
+      <div id="viewDiv"></div>
+    </body>
+  </html>
+  
