@@ -1,8 +1,11 @@
-<html>
+<!-- <html>
     <head>
         <title>Security Definitions</title>
         <script src="https://js.arcgis.com/calcite-components/1.1.0/calcite.esm.js" type="module"></script>
         <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/1.1.0/calcite.css" />
+        <style>
+
+        </style>
     </head>
     <body>
         <calcite-accordion scale="l">
@@ -11,7 +14,7 @@
                     <div slot="message">Een identity provider (IdP) is een systeem dat digitale identiteiten aanmaakt, opslaat en beheert. Simpel gezegd biedt een IdP gebruikersauthenticatie as-a-service.</div>
                 </calcite-notice>
             </calcite-accordion-item>
-            <calcite-accordion-item description="" heading="SAML" ><!--icon-start="embark"-->
+            <calcite-accordion-item description="" heading="SAML" >
                 <calcite-notice open>
                     <div slot="message">Recommended for coastal use</div>
                 </calcite-notice>
@@ -33,4 +36,333 @@
             </calcite-accordion-item>
         </calcite-accordion>
     </body>
+</html> -->
+
+<!-- 
+CSS ONLY – ACCORDION COMPONENT
+VIEW THE REPO: https://github.com/night-shift-studio/nss-components
+
+AUTHOR: NIGHT SHIFT STUDIO
+
+NOTES:
+INSPIRED BY & REWORKED FROM 
+VANILLA CSS COLLAPSABLE DRAWERS: https://codepen.io/builtbyluke/pen/dBVVQR 
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&display=swap" rel="stylesheet">
+<script>
+    // $(function() { // Wait for page to finish loading.
+    //     if(navigator != undefined && navigator.userAgent != undefined) {
+    //         user_agent = navigator.userAgent.toLowerCase();
+    //         if(user_agent.indexOf('android') > -1) { // Is Android.
+    //             $(document.body).addClass('android');
+    //         }
+    //     }
+    // });
+    
+    // if(navigator != undefined && navigator.userAgent != undefined) {
+    //     user_agent = navigator.userAgent.toLowerCase();
+    //     console.log("user_agent:", user_agent);
+    //     if(user_agent.indexOf('android') > -1) { // Is Android.
+    //         // $(document.body).addClass('android');
+    //         console.log("user_agent: 'android'");
+    //     }
+    //     if(user_agent.indexOf('ios') > -1) { // Is Android.
+    //         // $(document.body).addClass('android');
+    //         console.log("user_agent: 'iphone'");
+    //     }
+    // }
+    
+    var b = document.documentElement;
+    b.setAttribute('data-useragent',  navigator.userAgent);
+    console.log('data-useragent',  navigator.userAgent);
+    b.setAttribute('data-platform', navigator.platform);
+    console.log('data-platform', navigator.platform);
+    b.className += ((!!('ontouchstart' in window) || !!('onmsgesturechange' in window))?' touch':'');
+    console.log("b: ", b);
+</script>
+<style>
+    
+    /* @media screen and (min-device-width: 480px) { */
+        h1 {
+            font-size: 1em;
+        }
+
+        .faq-drawer__content-wrapper {
+            font-size: 0.75em;
+        }
+
+        .faq-drawer__title {
+            font-size: 0.75em;
+        }
+
+        .container {
+            padding: 50px;
+        }
+    /* } */
+   
+
+    /* @media screen and (max-device-width: 480px) {
+        h1 {
+            font-size: 3em;
+        }
+
+        .faq-drawer__content-wrapper {
+            font-size: 2.75em;
+        }
+
+        .faq-drawer__title {
+            font-size: 2.25em;
+        }
+
+        .container {
+            padding: 30px;
+        }
+    }  */
+
+    html[data-useragent*='Android'] h1 {
+            font-size: 3em;
+    }
+    html[data-useragent*='Android'] .faq-drawer__content-wrapper {
+        font-size: 2.2em;
+    }
+    html[data-useragent*='Android'] .faq-drawer__title {
+        font-size: 2.0em;
+        color: #072743;
+    }
+    html[data-useragent*='Android'] .container {
+        padding: 30px;
+    }
+    /* html[data-useragent*='Android/2.1'] body {
+        background-color: blue;
+    } */
+    html[data-useragent*='iPhone'] h1 {
+            font-size: 3em;
+    }
+    html[data-useragent*='iPhone'] .faq-drawer__content-wrapper {
+        font-size: 2.2em;
+    }
+    html[data-useragent*='iPhone'] .faq-drawer__title {
+        font-size: 2.0em;
+        color: #072743;
+    }
+    html[data-useragent*='iPhone'] .container {
+        padding: 30px;
+    }
+
+    body {
+    background-color: #FFF8F2;
+    /* color: #373539; */
+    color: black;
+    font-family: 'Montserrat', sans-serif;
+    }
+
+    /* .container {
+    padding: 100px;
+    } */
+
+    .faq-drawer {
+    margin-bottom: 30px;
+    }
+
+    .faq-drawer__content-wrapper {
+    /* font-size: 2.25em; */
+    line-height: 1.4em;
+    max-height: 0px;
+    overflow: hidden;
+    transition: 0.25s ease-in-out;
+    }
+
+    .faq-drawer__title {
+    border-top: #000 1px solid;
+    cursor: pointer;
+    display: block;
+    /* font-size: 2.25em; */
+    font-weight: 700;
+    padding: 30px 0 0 0;
+    position: relative;
+    margin-bottom: 0;
+    transition: all 0.25s ease-out;
+    }
+
+    .faq-drawer__title::after {
+    border-style: solid;
+    border-width: 1px 1px 0 0;
+    content: " ";
+    display: inline-block;
+    float: right;
+    height: 10px;
+    left: 2px;
+    position: relative;
+    right: 20px;
+    top: 2px;
+    transform: rotate(135deg);
+    transition: 0.35s ease-in-out;
+    vertical-align: top;
+    width: 10px;
+    }
+
+    /* OPTIONAL HOVER STATE */
+    .faq-drawer__title:hover { 
+    color: #4E4B52  ;
+    }
+
+    .faq-drawer__trigger:checked
+    + .faq-drawer__title
+    + .faq-drawer__content-wrapper {
+    max-height: 350px;
+    }
+
+    .faq-drawer__trigger:checked + .faq-drawer__title::after {
+    transform: rotate(-45deg);
+    transition: 0.25s ease-in-out;
+    }
+
+    input[type="checkbox"] {
+    display: none;
+    }
+
+    /* @media only screen and (max-width: 600px) {
+    .container {
+        padding: 80px;
+    }
+    } */
+
+</style>
+</head>
+<body>
+  
+  <div class="container">
+    
+    <h1>Security definities</h1>
+    
+    <div class="faq-drawer">
+      <input class="faq-drawer__trigger" id="faq-drawer" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer">Identity Provider</label>
+      <div class="faq-drawer__content-wrapper">
+        <div class="faq-drawer__content">
+          <p>
+            Een identity provider (IdP) is een systeem dat digitale identiteiten aanmaakt, opslaat en beheert. Simpel gezegd biedt een IdP gebruikersauthenticatie as-a-service.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="faq-drawer">
+      <input class="faq-drawer__trigger" id="faq-drawer-2" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-2">SAML</label>
+      <div class="faq-drawer__content-wrapper">
+        <div class="faq-drawer__content">
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="faq-drawer">
+      <input class="faq-drawer__trigger" id="faq-drawer-3" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-3">Authenticatie</label>
+      <div class="faq-drawer__content-wrapper">
+        <div class="faq-drawer__content">
+          <p>
+            Wie ben je?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-4" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-4">Autorisatie</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+              Wat mag je?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-5" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-5">Token</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+                Zolang een token geldig is hebben gebruikers toegang tot de website of app waarvoor de token is uitgegeven.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-6" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-6">Authenticatie</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+              Wie ben je?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-7" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-7">Authenticatie</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+              Wie ben je?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-8" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-8">Authenticatie</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+              Wie ben je?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-9" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-9">Authenticatie</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+              Wie ben je?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-10" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-10">Authenticatie</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+              Wie ben je?
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-drawer">
+        <input class="faq-drawer__trigger" id="faq-drawer-11" type="checkbox" /><label class="faq-drawer__title" for="faq-drawer-11">Authenticatie</label>
+        <div class="faq-drawer__content-wrapper">
+          <div class="faq-drawer__content">
+            <p>
+              Wie ben je?
+            </p>
+          </div>
+        </div>
+      </div>
+
+  </div>
+
+</body>
+
 </html>
