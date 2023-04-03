@@ -28,7 +28,9 @@ if servicesManager.exists(folder_name="/",name="SampleWorldCities",service_type=
     print(f"Service status: {swcService.status}")
 
     print("Stop Service")
-    swcService.stop()
+    #swcService.stop()
+
+    swcService.start()
 
     print(f"Service status: {swcService.status}")
 print("Script complete")
