@@ -1,43 +1,3 @@
-<!-- <html>
-    <head>
-        <title>Security Definitions</title>
-        <script src="https://js.arcgis.com/calcite-components/1.1.0/calcite.esm.js" type="module"></script>
-        <link rel="stylesheet" href="https://js.arcgis.com/calcite-components/1.1.0/calcite.css" />
-        <style>
-
-        </style>
-    </head>
-    <body>
-        <calcite-accordion scale="l">
-            <calcite-accordion-item description="" heading="Identity Provider">
-                <calcite-notice open>
-                    <div slot="message">Een identity provider (IdP) is een systeem dat digitale identiteiten aanmaakt, opslaat en beheert. Simpel gezegd biedt een IdP gebruikersauthenticatie as-a-service.</div>
-                </calcite-notice>
-            </calcite-accordion-item>
-            <calcite-accordion-item description="" heading="SAML" >
-                <calcite-notice open>
-                    <div slot="message">Recommended for coastal use</div>
-                </calcite-notice>
-            </calcite-accordion-item>
-            <calcite-accordion-item description="" heading="Authenticatie" >
-                <calcite-notice open>
-                    <div slot="message">Wie ben je</div>
-                </calcite-notice>
-            </calcite-accordion-item>
-            <calcite-accordion-item description="" heading="Autorisatie" >
-                <calcite-notice open>
-                    <div slot="message">Wat mag je</div>
-                </calcite-notice>
-            </calcite-accordion-item>
-            <calcite-accordion-item description="" heading="Token">
-                <calcite-notice open>
-                    <div slot="message">Zolang een token geldig is hebben gebruikers toegang tot de website of app waarvoor de token is uitgegeven.</div>
-                </calcite-notice>
-            </calcite-accordion-item>
-        </calcite-accordion>
-    </body>
-</html> -->
-
 <!-- 
 CSS ONLY – ACCORDION COMPONENT
 VIEW THE REPO: https://github.com/night-shift-studio/nss-components
@@ -55,74 +15,27 @@ VANILLA CSS COLLAPSABLE DRAWERS: https://codepen.io/builtbyluke/pen/dBVVQR
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&display=swap" rel="stylesheet">
 <script>
-    // $(function() { // Wait for page to finish loading.
-    //     if(navigator != undefined && navigator.userAgent != undefined) {
-    //         user_agent = navigator.userAgent.toLowerCase();
-    //         if(user_agent.indexOf('android') > -1) { // Is Android.
-    //             $(document.body).addClass('android');
-    //         }
-    //     }
-    // });
-    
-    // if(navigator != undefined && navigator.userAgent != undefined) {
-    //     user_agent = navigator.userAgent.toLowerCase();
-    //     console.log("user_agent:", user_agent);
-    //     if(user_agent.indexOf('android') > -1) { // Is Android.
-    //         // $(document.body).addClass('android');
-    //         console.log("user_agent: 'android'");
-    //     }
-    //     if(user_agent.indexOf('ios') > -1) { // Is Android.
-    //         // $(document.body).addClass('android');
-    //         console.log("user_agent: 'iphone'");
-    //     }
-    // }
-    
     var b = document.documentElement;
     b.setAttribute('data-useragent',  navigator.userAgent);
-    console.log('data-useragent',  navigator.userAgent);
     b.setAttribute('data-platform', navigator.platform);
-    console.log('data-platform', navigator.platform);
     b.className += ((!!('ontouchstart' in window) || !!('onmsgesturechange' in window))?' touch':'');
-    console.log("b: ", b);
 </script>
 <style>
-    
-    /* @media screen and (min-device-width: 480px) { */
-        h1 {
-            font-size: 1em;
-        }
+      h1 {
+          font-size: 1em;
+      }
 
-        .faq-drawer__content-wrapper {
-            font-size: 0.75em;
-        }
+      .faq-drawer__content-wrapper {
+          font-size: 0.75em;
+      }
 
-        .faq-drawer__title {
-            font-size: 0.75em;
-        }
+      .faq-drawer__title {
+          font-size: 0.75em;
+      }
 
-        .container {
-            padding: 50px;
-        }
-    /* } */
-   
-
-    /* @media screen and (max-device-width: 480px) {
-        h1 {
-            font-size: 3em;
-        }
-
-        .faq-drawer__content-wrapper {
-            font-size: 2.75em;
-        }
-
-        .faq-drawer__title {
-            font-size: 2.25em;
-        }
-
-        .container {
-            padding: 30px;
-        }
-    }  */
+      .container {
+          padding: 50px;
+      }
 
     html[data-useragent*='Android'] h1 {
             font-size: 3em;
@@ -137,9 +50,7 @@ VANILLA CSS COLLAPSABLE DRAWERS: https://codepen.io/builtbyluke/pen/dBVVQR
     html[data-useragent*='Android'] .container {
         padding: 30px;
     }
-    /* html[data-useragent*='Android/2.1'] body {
-        background-color: blue;
-    } */
+    
     html[data-useragent*='iPhone'] h1 {
             font-size: 3em;
     }
@@ -156,21 +67,15 @@ VANILLA CSS COLLAPSABLE DRAWERS: https://codepen.io/builtbyluke/pen/dBVVQR
 
     body {
     background-color: #FFF8F2;
-    /* color: #373539; */
     color: black;
     font-family: 'Montserrat', sans-serif;
     }
-
-    /* .container {
-    padding: 100px;
-    } */
 
     .faq-drawer {
     margin-bottom: 30px;
     }
 
     .faq-drawer__content-wrapper {
-    /* font-size: 2.25em; */
     line-height: 1.4em;
     max-height: 0px;
     overflow: hidden;
@@ -181,7 +86,6 @@ VANILLA CSS COLLAPSABLE DRAWERS: https://codepen.io/builtbyluke/pen/dBVVQR
     border-top: #000 1px solid;
     cursor: pointer;
     display: block;
-    /* font-size: 2.25em; */
     font-weight: 700;
     padding: 30px 0 0 0;
     position: relative;
@@ -225,12 +129,6 @@ VANILLA CSS COLLAPSABLE DRAWERS: https://codepen.io/builtbyluke/pen/dBVVQR
     input[type="checkbox"] {
     display: none;
     }
-
-    /* @media only screen and (max-width: 600px) {
-    .container {
-        padding: 80px;
-    }
-    } */
 
 </style>
 </head>
