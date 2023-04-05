@@ -1,0 +1,520 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Feature display order & Related records in pop-up</title>
+    <script
+      type="module"
+      src="https://js.arcgis.com/calcite-components/1.1.0/calcite.esm.js"
+    ></script>
+    <script type="module">
+      import Graphic from "https://js.arcgis.com/4.26/@arcgis/core/Graphic.js";
+      import WebMap from "https://js.arcgis.com/4.26/@arcgis/core/WebMap.js";
+      import MapView from "https://js.arcgis.com/4.26/@arcgis/core/views/MapView.js";
+      import Legend from "https://js.arcgis.com/4.26/@arcgis/core/widgets/Legend.js";
+      import AggregateField from "https://js.arcgis.com/4.26/@arcgis/core/layers/support/AggregateField.js";
+      import LabelClass from "https://js.arcgis.com/4.26/@arcgis/core/layers/support/LabelClass.js";
+      import * as clusterPopupTemplateCreator from "https://js.arcgis.com/4.26/@arcgis/core/smartMapping/popup/clusters.js";
+      import * as clusterLabelCreator from "https://js.arcgis.com/4.26/@arcgis/core/smartMapping/labels/clusters.js";
+      import * as reactiveUtils from "https://js.arcgis.com/4.26/@arcgis/core/core/reactiveUtils.js";
+      import * as symbolUtils from "https://js.arcgis.com/4.26/@arcgis/core/symbols/support/symbolUtils.js";
+      import * as geometryEngine from "https://js.arcgis.com/4.26/@arcgis/core/geometry/geometryEngine.js";
+
+      const colors = ["#d7e1ee", "#cbd6e4", "#b3bfd1", "#c86558", "#991f17"];
+
+      //
+      // Creating the map
+      //
+      const webmap = new WebMap({
+        portalItem: {
+          id: "0aad4b477f5f4a0790a396ae09298b9f"
+        }
+      });
+
+      const view = new MapView({
+        map: webmap,
+        container: "viewDiv"
+      });
+
+      const legend = new Legend({
+        view: view,
+        container: "legendContainer"
+      });
+
+      //
+      // Setting the event listeners
+      //
+      await webmap.when();
+      await view.when();
+
+      const layer = webmap.allLayers.find((layer) => {
+        return layer.title === "Verkeersongevallen";
+      });
+
+      const layerView = await view.whenLayerView(layer);
+
+      // displays all features from a given cluster in the view
+      const displayFeatures = async (graphic) => {
+        //processParams(graphic, layerView);
+
+        const query = layerView.createQuery();
+        query.aggregateIds = [graphic.getObjectId()];
+        const { features } = await layerView.queryFeatures(query);
+
+        features.forEach(async (feature) => {
+          const symbol = await symbolUtils.getDisplayedSymbol(feature);
+          feature.symbol = symbol;
+          view.graphics.add(feature);
+        });
+        clusterChildGraphics = features;
+      };
+
+      const displayConvexHull = async (graphic) => {
+        //processParams(graphic, layerView);
+
+        const query = layerView.createQuery();
+        query.aggregateIds = [graphic.getObjectId()];
+        const { features } = await layerView.queryFeatures(query);
+        const geometries = features.map((feature) => feature.geometry);
+        const [convexHull] = geometryEngine.convexHull(geometries, true);
+
+        convexHullGraphic = new Graphic({
+          geometry: convexHull,
+          symbol: {
+            type: "simple-fill",
+            outline: {
+              width: 1.5,
+              color: [75, 75, 75, 1]
+            },
+            style: "none",
+            color: [0, 0, 0, 0.1]
+          }
+        });
+        view.graphics.add(convexHullGraphic);
+      };
+
+      //
+      // Creating binning
+      //
+      const enableBinning = (layer) => {
+        const featureReduction = {
+          type: "binning",
+          fields: [
+            new AggregateField({
+              name: "aggregateCount",
+              statisticType: "count"
+            })
+          ],
+          fixedBinLevel: 6,
+          labelsVisible: true,
+          labelingInfo: [
+            new LabelClass({
+              minScale: 144448,
+              maxScale: 0,
+              deconflictionStrategy: "none",
+              symbol: {
+                type: "text", // autocasts as new TextSymbol()
+                color: "white",
+                font: {
+                  family: "Noto Sans",
+                  size: 10,
+                  weight: "bold"
+                },
+                haloColor: colors[4],
+                haloSize: 0.5
+              },
+              labelExpressionInfo: {
+                expression: "Text($feature.aggregateCount, '#,###')"
+              }
+            })
+          ],
+          renderer: {
+            type: "simple",
+            symbol: {
+              type: "simple-fill",
+              color: [0, 255, 71, 1],
+              outline: null,
+              outline: {
+                color: "rgba(153, 31, 23, 0.3)",
+                width: 0.3
+              }
+            },
+            visualVariables: [
+              {
+                type: "color",
+                field: "aggregateCount",
+                legendOptions: {
+                  title: "Aantal ongevallen"
+                },
+                stops: [
+                  { value: 0, color: colors[0] },
+                  { value: 5, color: colors[1] },
+                  { value: 15, color: colors[2] },
+                  { value: 30, color: colors[3] },
+                  { value: 60, color: colors[4] }
+                ]
+              }
+            ]
+          }
+        };
+        layer.featureReduction = featureReduction;
+      };
+
+      //
+      // Creating clustering
+      //
+      const generateClusterConfig = async (layer) => {
+        // generates default popupTemplate
+        const popupTemplate = await clusterPopupTemplateCreator
+          .getTemplates({
+            layer
+          })
+          .then(
+            (popupTemplateResponse) =>
+              popupTemplateResponse.primaryTemplate.value
+          );
+
+        // Add actions for exploring the features of each cluster
+        popupTemplate.actions = [
+          {
+            title: "Convex hull",
+            id: "convex-hull",
+            className: "esri-icon-polygon"
+          },
+          {
+            title: "Show features",
+            id: "show-features",
+            className: "esri-icon-maps"
+          }
+        ];
+
+        // generates default labelingInfo
+        const { labelingInfo, clusterMinSize } = await clusterLabelCreator
+          .getLabelSchemes({
+            layer,
+            view
+          })
+          .then((labelSchemes) => labelSchemes.primaryScheme);
+
+        return {
+          type: "cluster",
+          popupTemplate,
+          labelingInfo,
+          clusterMinSize,
+          maxScale: 50000
+        };
+      };
+
+      //
+      // Toggling the Calcite shell panel
+      //
+      document
+        .getElementsByTagName("calcite-action")[0]
+        .addEventListener("click", () => {
+          console.log("click");
+          document.getElementsByTagName("calcite-shell-panel")[0].collapsed =
+            !document.getElementsByTagName("calcite-shell-panel")[0].collapsed;
+          document.getElementsByTagName("calcite-panel")[0].hidden =
+            !document.getElementsByTagName("calcite-panel")[0].hidden;
+        });
+
+      // Feature order display
+      document
+        .getElementsByTagName("calcite-switch")[0]
+        .addEventListener("calciteSwitchChange", () => {
+          layer.renderer.orderByClassesEnabled =
+            !layer.renderer.orderByClassesEnabled;
+        });
+
+      // Binning
+      document
+        .getElementById("switch-enable-binning")
+        .addEventListener("calciteSwitchChange", () => {
+          enableBinning(layer);
+        });
+
+      // clustering
+      document
+        .getElementById("switch-enable-clustering")
+        .addEventListener("calciteSwitchChange", async () => {
+          const clusterConfig = await generateClusterConfig(layer);
+          debugger;
+          layer.featureReduction = clusterConfig;
+        });
+
+      let convexHullGraphic = null;
+      let clusterChildGraphics = [];
+
+      const clearViewGraphics = () => {
+        view.graphics.remove(convexHullGraphic);
+        view.graphics.removeMany(clusterChildGraphics);
+      };
+
+      reactiveUtils.watch(
+        () => [view.scale, view.popup.selectedFeature, view.popup.visible],
+        clearViewGraphics
+      );
+
+      view.popup.on("trigger-action", (event) => {
+        clearViewGraphics();
+
+        const popup = view.popup;
+        const selectedFeature =
+          popup.selectedFeature && popup.selectedFeature.isAggregate;
+
+        const id = event.action.id;
+
+        if (id === "convex-hull") {
+          displayConvexHull(view.popup.selectedFeature);
+        }
+        if (id === "show-features") {
+          displayFeatures(view.popup.selectedFeature);
+        }
+      });
+    </script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://js.arcgis.com/calcite-components/1.1.0/calcite.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.26/@arcgis/core/assets/esri/themes/light/main.css"
+    />
+
+    <style>
+      #header {
+        padding-left: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <calcite-shell>
+      <div id="header" slot="header">
+        <h2 id="app-title">Verkeersongevallen</h2>
+      </div>
+      <calcite-shell-panel
+        id="panel-start"
+        slot="panel-start"
+        position="start"
+        width-scale="l"
+        resizable="true"
+      >
+        <calcite-action-bar slot="action-bar">
+          <calcite-action-group>
+            <calcite-action text="Code" icon="effects"></calcite-action>
+          </calcite-action-group>
+        </calcite-action-bar>
+        <calcite-panel heading="Demo">
+          <calcite-block heading="Feature order display" collapsible open>
+            <calcite-icon scale="s" slot="icon" icon="effects"></calcite-icon>
+            <div id="legendContainer"></div>
+            <calcite-label
+              >Teken kaartlaag conform legenda volgorde
+              <calcite-switch scale="m"></calcite-switch
+            ></calcite-label>
+          </calcite-block>
+          <calcite-block heading="Feature order display Code" collapsible>
+            <calcite-icon scale="s" slot="icon" icon="code"></calcite-icon>
+            <!-- HTML generated using hilite.me -->
+            <div
+              style="
+                background: #ffffff;
+                overflow: auto;
+                width: auto;
+                border: solid gray;
+                border-width: 0.1em 0.1em 0.1em 0.8em;
+                padding: 0.2em 0.6em;
+              "
+            >
+              <pre
+                style="margin: 0; line-height: 125%"
+              >layer.renderer <span style="color: #333333">=</span> {
+    type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;unique-value&quot;</span>, 
+    field<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;AP3_CODE&quot;</span>,
+...
+
+layer.renderer.uniqueValueInfos <span style="color: #333333">=</span> [{
+    label<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Dodelijk&quot;</span>,
+    symbol<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">new</span> Symbol(),
+    value<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Dodelijk&quot;</span>,
+},
+...]
+
+layer.renderer.orderByClassesEnabled <span style="color: #333333">=</span> <span style="color: #008800; font-weight: bold">true</span>
+</pre>
+            </div>
+          </calcite-block>
+
+          <calcite-block heading="Binning" collapsible>
+            <calcite-icon
+              scale="s"
+              slot="icon"
+              icon="clustering"
+            ></calcite-icon>
+            <calcite-label
+              >Zet binning aan
+              <calcite-switch
+                id="switch-enable-binning"
+                scale="m"
+              ></calcite-switch
+            ></calcite-label>
+          </calcite-block>
+          <calcite-block heading="Binning Code" collapsible>
+            <calcite-icon scale="s" slot="icon" icon="code"></calcite-icon>
+            <!-- HTML generated using hilite.me -->
+            <div
+              style="
+                background: #ffffff;
+                overflow: auto;
+                width: auto;
+                border: solid gray;
+                border-width: 0.1em 0.1em 0.1em 0.8em;
+                padding: 0.2em 0.6em;
+              "
+            >
+              <pre
+                style="margin: 0; line-height: 125%"
+              ><span style="color: #008800; font-weight: bold">const</span> featureReduction <span style="color: #333333">=</span> {
+                type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;binning&quot;</span>,
+                fields<span style="color: #333333">:</span> [
+                <span style="color: #008800; font-weight: bold">new</span> AggregateField({
+                    name<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;aggregateCount&quot;</span>,
+                    statisticType<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;count&quot;</span>
+                })
+                ],
+                fixedBinLevel<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">6</span>,
+                labelsVisible<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">true</span>,
+                labelingInfo<span style="color: #333333">:</span> [
+                <span style="color: #008800; font-weight: bold">new</span> LabelClass({
+                    minScale<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">144448</span>,
+                    maxScale<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">0</span>,
+                    deconflictionStrategy<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;none&quot;</span>,
+                    symbol<span style="color: #333333">:</span> {
+                    type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;text&quot;</span>, <span style="color: #888888">// autocasts as new TextSymbol()</span>
+                    color<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;white&quot;</span>,
+                    font<span style="color: #333333">:</span> {
+                        family<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Noto Sans&quot;</span>,
+                        size<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">10</span>,
+                        weight<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;bold&quot;</span>
+                    },
+                    haloColor<span style="color: #333333">:</span> colors[<span style="color: #0000DD; font-weight: bold">4</span>],
+                    haloSize<span style="color: #333333">:</span> <span style="color: #6600EE; font-weight: bold">0.5</span>
+                    },
+                    labelExpressionInfo<span style="color: #333333">:</span> {
+                    expression<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Text($feature.aggregateCount, &#39;#,###&#39;)&quot;</span>
+                    }
+                })
+                ],
+                renderer<span style="color: #333333">:</span> {
+                type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;simple&quot;</span>,
+                symbol<span style="color: #333333">:</span> {
+                    type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;simple-fill&quot;</span>,
+                    color<span style="color: #333333">:</span> [<span style="color: #0000DD; font-weight: bold">0</span>, <span style="color: #0000DD; font-weight: bold">255</span>, <span style="color: #0000DD; font-weight: bold">71</span>, <span style="color: #0000DD; font-weight: bold">1</span>],
+                    outline<span style="color: #333333">:</span> <span style="color: #008800; font-weight: bold">null</span>,
+                    outline<span style="color: #333333">:</span> {
+                    color<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;rgba(153, 31, 23, 0.3)&quot;</span>,
+                    width<span style="color: #333333">:</span> <span style="color: #6600EE; font-weight: bold">0.3</span>
+                    }
+                },
+                visualVariables<span style="color: #333333">:</span> [
+                    {
+                    type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;color&quot;</span>,
+                    field<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;aggregateCount&quot;</span>,
+                    legendOptions<span style="color: #333333">:</span> {
+                        title<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Aantal ongevallen&quot;</span>
+                    },
+                    stops<span style="color: #333333">:</span> [
+                        { value<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">0</span>, color<span style="color: #333333">:</span> colors[<span style="color: #0000DD; font-weight: bold">0</span>] },
+                        { value<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">5</span>, color<span style="color: #333333">:</span> colors[<span style="color: #0000DD; font-weight: bold">1</span>] },
+                        { value<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">15</span>, color<span style="color: #333333">:</span> colors[<span style="color: #0000DD; font-weight: bold">2</span>] },
+                        { value<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">30</span>, color<span style="color: #333333">:</span> colors[<span style="color: #0000DD; font-weight: bold">3</span>] },
+                        { value<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">60</span>, color<span style="color: #333333">:</span> colors[<span style="color: #0000DD; font-weight: bold">4</span>] }
+                    ]
+                    }
+                ]
+                }
+            };
+            </pre>
+            </div>
+          </calcite-block>
+
+          <calcite-block heading="Clustering" collapsible>
+            <calcite-icon scale="s" slot="icon" icon="pins"></calcite-icon>
+            <calcite-label
+              >Zet clustering aan
+              <calcite-switch
+                id="switch-enable-clustering"
+                scale="m"
+              ></calcite-switch
+            ></calcite-label>
+          </calcite-block>
+          <calcite-block heading="Clustering Code" collapsible>
+            <calcite-icon scale="s" slot="icon" icon="code"></calcite-icon>
+            <!-- HTML generated using hilite.me -->
+            <div
+              style="
+                background: #ffffff;
+                overflow: auto;
+                width: auto;
+                border: solid gray;
+                border-width: 0.1em 0.1em 0.1em 0.8em;
+                padding: 0.2em 0.6em;
+              "
+            >
+              <pre
+                style="margin: 0; line-height: 125%"
+              ><span style="color: #008800; font-weight: bold">const</span> generateClusterConfig <span style="color: #333333">=</span> async (layer) <span style="color: #333333">=&gt;</span> {
+            <span style="color: #888888">// generates default popupTemplate</span>
+            <span style="color: #008800; font-weight: bold">const</span> popupTemplate <span style="color: #333333">=</span> await clusterPopupTemplateCreator
+                .getTemplates({
+                layer
+                })
+                .then(
+                (popupTemplateResponse) <span style="color: #333333">=&gt;</span>
+                    popupTemplateResponse.primaryTemplate.value
+                );
+
+            <span style="color: #888888">// Add actions for exploring the features of each cluster</span>
+            popupTemplate.actions <span style="color: #333333">=</span> [
+                {
+                title<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Convex hull&quot;</span>,
+                id<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;convex-hull&quot;</span>,
+                className<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;esri-icon-polygon&quot;</span>
+                },
+                {
+                title<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;Show features&quot;</span>,
+                id<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;show-features&quot;</span>,
+                className<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;esri-icon-maps&quot;</span>
+                }
+            ];
+
+            <span style="color: #888888">// generates default labelingInfo</span>
+            <span style="color: #008800; font-weight: bold">const</span> { labelingInfo, clusterMinSize } <span style="color: #333333">=</span> await clusterLabelCreator
+                .getLabelSchemes({
+                layer,
+                view
+                })
+                .then((labelSchemes) <span style="color: #333333">=&gt;</span> labelSchemes.primaryScheme);
+
+            <span style="color: #008800; font-weight: bold">return</span> {
+                type<span style="color: #333333">:</span> <span style="background-color: #fff0f0">&quot;cluster&quot;</span>,
+                popupTemplate,
+                labelingInfo,
+                clusterMinSize,
+                maxScale<span style="color: #333333">:</span> <span style="color: #0000DD; font-weight: bold">50000</span>
+            };
+            };
+            </pre>
+            </div>
+          </calcite-block>
+        </calcite-panel>
+      </calcite-shell-panel>
+      <div id="viewDiv" style="height: 100%; width: 100%"></div>
+    </calcite-shell>
+  </body>
+</html>
